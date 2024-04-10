@@ -2,5 +2,6 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('', views.taskList, name='tasks')
+    path('todolists/', views.allTodoLists, name='todosLists'),
+    path('todolist/<str:list_title>/', views.TodoListGet, name='todolist-get-by-name'),
 ]
