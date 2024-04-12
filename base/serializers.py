@@ -4,10 +4,13 @@ from django.contrib.auth.models import User
 from django.db import models
 from .models import Todo, TodoList
 
-class TodoSerializer(serializers.Serializer): #Serializador de um Todo
+class TodoSerializer(serializers.ModelSerializer): #Serializador de um Todo
     class Meta:
         model = Todo
         fields = '__all__'
+
+    def create(self, validated_data):
+        return Todo.objects.create(**validated_data)
 
 class TodoListSerializer(serializers.ModelSerializer): #Serializador de uma TodoList
     class Meta:
