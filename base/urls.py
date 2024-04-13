@@ -3,7 +3,7 @@ from . import views
 
 urlpatterns = [ 
     path('todolists/', views.allTodoLists, name='todosLists'),
-    path('todolist/<str:list_title>/', views.TodoListGet, name='todolist-get-by-name'),
+    path('todos/', views.allTodos, name='all-todos'),
     path('todolistnew/', views.CreateTodoList, name='create-todo-list'),
     path('todonew/', views.CreateTodo, name='create-todo')
 ]
