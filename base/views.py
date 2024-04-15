@@ -75,7 +75,7 @@ def CreateTodo(req):
         except Todo.DoesNotExist:
             return Response({'message': 'Todo not found'}, status=status.HTTP_404_NOT_FOUND)   
         todo.delete()  # Exclua o ToDo
-        return Response({'message': 'Todo deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+        return Response({'message': 'Todo deleted successfully'}, status=status.HTTP_200_OK)
     
     elif req.method == 'PUT':
         if 'todo_id' not in req.data:
