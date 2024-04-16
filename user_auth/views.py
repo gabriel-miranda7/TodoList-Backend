@@ -37,5 +37,14 @@ def login(request):
 @api_view(['GET'])
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
+def getUsername(request):
+    user = request.user
+    if not user:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    return Response({user.username})
+
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def authenticate_token(request):
-    return Response({"valid" : True})
+    return Response({"Ok"})
