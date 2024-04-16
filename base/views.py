@@ -11,26 +11,14 @@ from rest_framework.permissions import IsAuthenticated
 @permission_classes({IsAuthenticated})
 def allTodoLists(req):   #endpoint para visualizar todas as listas todo
     if req.method == 'GET':
-        TodosLists = TodoList.objects.filter(user=req.user) #pega todas as todosLists
-        serializer = TodoListSerializer(TodosLists, many = True) #serializa os dados
-        return Response(serializer.data)
-
-@api_view(['GET'])
-@authentication_classes([SessionAuthentication, TokenAuthentication])
-@permission_classes({IsAuthenticated})
-def allTodos(req):
-    if req.method == 'GET':
-        if 'todo_list_title' not in req.data: #Procura no request o nome da TodoList
-         return Response({'error': 'Todo list title is required'}, status=status.HTTP_400_BAD_REQUEST)
-        todo_list_title = req.data['todo_list_title'] #Pega a Todolist pai
-        try: 
-            todo_list = TodoList.objects.get(title=todo_list_title, user=req.user)
-        except TodoList.DoesNotExist:
-            return Response({'message': 'Todo list not found'}, status=status.HTTP_404_NOT_FOUND)
-        todos = todo_list.todo_set.all()
-        serializer = TodoSerializer(todos, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
+        todo_lists = TodoList.objects.filter(user=req.user)
+        data = []
+        for todo_list in todo_lists:
+            todo_list_data = TodoListSerializer(todo_list).data
+            todos = Todo.objects.filter(todoList=todo_list)
+            todo_list_data['todos'] = TodoSerializer(todos, many=True).data
+            data.append({todo_list_data['title']: todo_list_data['todos']})
+        return Response(data)
 
 @api_view(['POST'])
 @authentication_classes([SessionAuthentication, TokenAuthentication])
@@ -52,9 +40,9 @@ def CreateTodoList(req):
 @permission_classes({IsAuthenticated}) #Cria um ToDo e adciona á uma todoList
 def CreateTodo(req):
     if req.method == 'POST':
-        if 'todo_list_title' not in req.data: #Procura no request o nome da TodoList
+        if 'todoList' not in req.data: #Procura no request o nome da TodoList
             return Response({'error': 'Todo list title is required'}, status=status.HTTP_400_BAD_REQUEST)
-        todo_list_title = req.data['todo_list_title'] #Pega a Todolist pai
+        todo_list_title = req.data['todoList'] #Pega a Todolist pai
         try: 
             todo_list = TodoList.objects.get(title=todo_list_title, user=req.user)
         except TodoList.DoesNotExist:
@@ -66,10 +54,10 @@ def CreateTodo(req):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-    elif req.method == 'DELETE':
-        if 'todo_id' not in req.data:
+    elif req.method == 'DELETE':  #Método para deletar Todo
+        if 'todoId' not in req.data:
             return Response({"message" : "Todo ID é exigido."}, status=status.HTTP_400_BAD_REQUEST)
-        todo_id = req.data['todo_id']
+        todo_id = req.data['todoId']
         try:
             todo = Todo.objects.get(id=todo_id)
         except Todo.DoesNotExist:
@@ -77,10 +65,10 @@ def CreateTodo(req):
         todo.delete()  # Exclua o ToDo
         return Response({'message': 'Todo deleted successfully'}, status=status.HTTP_200_OK)
     
-    elif req.method == 'PUT':
-        if 'todo_id' not in req.data:
+    elif req.method == 'PUT': #Método para editar Todo
+        if 'todoId' not in req.data:
             return Response({"message" : "Todo ID é exigido."}, status=status.HTTP_400_BAD_REQUEST)
-        todo_id = req.data['todo_id']
+        todo_id = req.data['todoId']
         try:
             todo = Todo.objects.get(id=todo_id)
         except Todo.DoesNotExist:

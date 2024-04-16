@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.response import Response
 from .serializers import UserSerializers
@@ -9,7 +8,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 
-@api_view(['POST'])
+@api_view(['POST'])  #Rota de registro de usuário
 def register(request):
     existing_user = User.objects.filter(username=request.data.get('username', ''))
     if existing_user.exists():
@@ -25,25 +24,16 @@ def register(request):
     else:
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['POST'])
+@api_view(['POST'])  #Rota de login
 def login(request):
     user = get_object_or_404(User, username=request.data['username'])
     if not user.check_password(request.data['password']):
-        return Response({"detail" : "Not found."}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"detail" : "Incorrect Password"}, status=status.HTTP_404_NOT_FOUND)
     token, created= Token.objects.get_or_create(user=user)
     serializer = UserSerializers(instance=user)
     return Response({token.key})
 
-@api_view(['GET'])
-@authentication_classes([TokenAuthentication])
-@permission_classes([IsAuthenticated])
-def getUsername(request):
-    user = request.user
-    if not user:
-        return Response(status=status.HTTP_400_BAD_REQUEST)
-    return Response({user.username})
-
-@api_view(['GET'])
+@api_view(['GET']) #Retorna 
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def authenticate_token(request):

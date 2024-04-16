@@ -16,7 +16,7 @@ class Todo(models.Model):  #Define os atributos de um ToDo
     description = models.TextField(null=True, blank=True, max_length=500)
     complete = models.BooleanField(default=False)
     create = models.DateTimeField(auto_now_add=True)
-    todoList = models.ForeignKey(TodoList, on_delete=models.CASCADE, null = True) #Cada TOdo aponta para uma lista de TOdos
+    todoList = models.ForeignKey(TodoList, on_delete=models.CASCADE, null = True) #Cada TO-Do aponta para uma lista de TOdos
 
     def __str__(self):  #Retorna a string titulo
         return self.title
