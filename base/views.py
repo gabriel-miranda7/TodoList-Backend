@@ -17,7 +17,7 @@ def allTodoLists(req):   #endpoint para visualizar todas as listas todo
             todo_list_data = TodoListSerializer(todo_list).data
             todos = Todo.objects.filter(todoList=todo_list)
             todo_list_data['todos'] = TodoSerializer(todos, many=True).data
-            data.append({todo_list_data['title']: todo_list_data['todos']})
+            data.append(todo_list_data)
         return Response(data)
 
 @api_view(['POST'])
