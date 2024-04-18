@@ -35,7 +35,7 @@ def CreateTodoList(req):
             return Response({'message' : 'Todo List created'}, status=status.HTTP_201_CREATED) #Retorna o status 201
         return Response(status=status.HTTP_400_BAD_REQUEST) #Retorna bad request caso o serializer seja inválido
  
-@api_view(['POST', 'DELETE', 'PUT'])
+@api_view(['GET', 'POST', 'DELETE', 'PUT'])
 @authentication_classes([SessionAuthentication, TokenAuthentication])
 @permission_classes({IsAuthenticated}) #Cria um ToDo e adciona á uma todoList
 def CreateTodo(req):
@@ -78,3 +78,17 @@ def CreateTodo(req):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes({IsAuthenticated}) 
+def isComplete(req):
+    if req.method == 'POST':
+        if 'todoId' not in req.data:
+            return Response({"message" : "Todo ID é exigido."}, status=status.HTTP_400_BAD_REQUEST)
+        todo_id = req.data['todoId']
+        try:
+            todo = Todo.objects.get(id=todo_id)
+            return Response({"complete" : todo.complete})
+        except Todo.DoesNotExist:
+            return Response({'message': 'Todo not found'}, status=status.HTTP_404_NOT_FOUND) 
