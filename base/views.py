@@ -20,7 +20,7 @@ def allTodoLists(req):   #endpoint para visualizar todas as listas todo
             data.append(todo_list_data)
         return Response(data)
 
-@api_view(['POST'])
+@api_view(['POST', 'PUT'])
 @authentication_classes([SessionAuthentication, TokenAuthentication])
 @permission_classes({IsAuthenticated}) #verifica se o usuário está autorizado
 def CreateTodoList(req):
@@ -34,6 +34,23 @@ def CreateTodoList(req):
             serializer.save()
             return Response({'message' : 'Todo List created'}, status=status.HTTP_201_CREATED) #Retorna o status 201
         return Response(status=status.HTTP_400_BAD_REQUEST) #Retorna bad request caso o serializer seja inválido
+    elif req.method == 'PUT':
+        if 'listId' not in req.data:
+            return Response({'error': 'Todo list id is required'}, status=status.HTTP_400_BAD_REQUEST)
+        listID = req.data['listId']
+        try: 
+            todo_list = TodoList.objects.get(id = listID, user=req.user)
+        except TodoList.DoesNotExist:
+            return Response({'message': 'Todo list not found'}, status=status.HTTP_404_NOT_FOUND)
+        new_title = req.data['newtitle']
+        if new_title:
+            todo_list.title = new_title
+            todo_list.save()
+            return Response({'message': 'Todo list title updated successfully'}, status=status.HTTP_200_OK)
+        else:
+            return Response({'error': 'New title is required for updating the todo list'}, status=status.HTTP_400_BAD_REQUEST)
+
+
  
 @api_view(['GET', 'POST', 'DELETE', 'PUT'])
 @authentication_classes([SessionAuthentication, TokenAuthentication])
