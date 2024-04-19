@@ -5,6 +5,7 @@ from .models import TodoList, Todo
 from .serializers import TodoSerializer, TodoListSerializer
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
+from django.utils import timezone
 
 @api_view(['GET'])
 @authentication_classes([SessionAuthentication, TokenAuthentication])
@@ -52,7 +53,7 @@ def CreateTodoList(req):
 
 
  
-@api_view(['GET', 'POST', 'DELETE', 'PUT'])
+@api_view(['POST', 'DELETE', 'PUT'])
 @authentication_classes([SessionAuthentication, TokenAuthentication])
 @permission_classes({IsAuthenticated}) #Cria um ToDo e adciona á uma todoList
 def CreateTodo(req):
@@ -109,3 +110,21 @@ def isComplete(req):
             return Response({"complete" : todo.complete})
         except Todo.DoesNotExist:
             return Response({'message': 'Todo not found'}, status=status.HTTP_404_NOT_FOUND) 
+        
+@api_view(['PUT'])
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes({IsAuthenticated}) 
+def treatTrashBin(req):
+    if req.method == 'PUT':
+        if 'todoId' not in req.data:
+            return Response({"message" : "Todo ID é exigido."}, status=status.HTTP_400_BAD_REQUEST)
+        todo_id = req.data['todoId']
+        try:
+            todo_ = Todo.objects.get(id=todo_id)
+        except Todo.DoesNotExist:
+            return Response({'message': 'Todo not found'}, status=status.HTTP_404_NOT_FOUND) 
+        todo_.isOnTrashBin = not todo_.isOnTrashBin
+        todo_.timeOfTrashBin = timezone.now()
+        todo_.save()
+        return Response(todo_.isOnTrashBin, status=status.HTTP_200_OK) 
+
