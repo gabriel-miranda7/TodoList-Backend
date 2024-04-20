@@ -29,8 +29,10 @@ def CreateTodoList(req):
         serializer = TodoListSerializer(data=req.data)
         if serializer.is_valid():
             todo_list_title = serializer.validated_data.get('title')
+            if len(todo_list_title) > 30:
+                return Response({"error": "Too long"}, status=status.HTTP_400_BAD_REQUEST)
             if TodoList.objects.filter(title=todo_list_title, user=req.user).exists():
-                return Response({'error': 'Todo list with this title already exists'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'error': 'Already exists'}, status=status.HTTP_400_BAD_REQUEST)
             serializer.validated_data['user'] = req.user
             serializer.save()
             return Response({'message' : 'Todo List created'}, status=status.HTTP_201_CREATED) #Retorna o status 201

@@ -19,7 +19,7 @@ class Todo(models.Model):  #Define os atributos de um ToDo
     complete = models.BooleanField(default=True)
     create = models.DateTimeField(auto_now_add=True)
     todoList = models.ForeignKey(TodoList, on_delete=models.CASCADE, null = True) #Cada TO-Do aponta para uma lista de TOdos
-    isOnTrashBin = models.BooleanField(default=False)
+    isOnTrashBin = models.BooleanField(null=True, blank=True, default=False)
     timeOfTrashBin = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):  #Retorna a string titulo
