@@ -137,3 +137,14 @@ def treatTrashBin(req):
         todo_.save()
         return Response(todo_.isOnTrashBin, status=status.HTTP_200_OK) 
 
+@api_view(['GET'])
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes({IsAuthenticated}) 
+def getAllTodos(req):
+    todo_lists = TodoList.objects.filter(user=req.user)
+    data = []
+    for todolist in todo_lists:
+        todos = Todo.objects.filter(todoList=todolist)
+        serialized_todos = TodoSerializer(todos, many=True).data
+        data.extend(serialized_todos)
+    return Response(data)
