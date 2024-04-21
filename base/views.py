@@ -40,18 +40,25 @@ def CreateTodoList(req):
     elif req.method == 'PUT':
         if 'listId' not in req.data:
             return Response({'error': 'Todo list id is required'}, status=status.HTTP_400_BAD_REQUEST)
-        listID = req.data['listId']
-        try: 
-            todo_list = TodoList.objects.get(id = listID, user=req.user)
+        list_id = req.data['listId']
+        try:
+            todo_list = TodoList.objects.get(id=list_id, user=req.user)
         except TodoList.DoesNotExist:
             return Response({'message': 'Todo list not found'}, status=status.HTTP_404_NOT_FOUND)
-        new_title = req.data['newtitle']
+        
+        new_title = req.data.get('newtitle')
+        new_favorite = req.data.get('favorite')
+
         if new_title:
             todo_list.title = new_title
             todo_list.save()
             return Response({'message': 'Todo list title updated successfully'}, status=status.HTTP_200_OK)
+        elif new_favorite is not None:  # Use 'is not None' to allow setting favorite to False
+            todo_list.favorite = new_favorite
+            todo_list.save()
+            return Response({'message': 'Todo list favorite updated successfully'}, status=status.HTTP_200_OK)
         else:
-            return Response({'error': 'New title is required for updating the todo list'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'New title or favorite is required for updating the todo list'}, status=status.HTTP_400_BAD_REQUEST)
 
 
  

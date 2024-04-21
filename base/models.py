@@ -5,6 +5,7 @@ class TodoList(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.CharField(max_length=30)
+    favorite = models.BooleanField(null=True, blank=True, default=False)
 
     def __str__(self):  #Retorna a string titulo
         return self.title
