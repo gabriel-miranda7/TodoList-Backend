@@ -15,7 +15,11 @@ def register(request):
     if existing_user.exists():
         return Response({'error': 'Este nome de usuário já está em uso.'}, status=status.HTTP_403_FORBIDDEN)
     serializer = UserSerializers(data=request.data)
+
     if serializer.is_valid():
+        password = request.data.get('password', '')
+        if len(password) < 8:
+            return Response({'error': 'Too short'}, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
         user = User.objects.get(username=request.data['username'])
         user.set_password(request.data['password'])
@@ -24,6 +28,7 @@ def register(request):
         return Response({token.key}, status=status.HTTP_201_CREATED)
     else:
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(['POST'])  #Rota de login
 def login(request):
